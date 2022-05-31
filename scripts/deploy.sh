@@ -42,14 +42,22 @@ PHP_XDEBUG_VERSION_NAME='xdebug-3.1.4'
 # Sanity check
 [ $(id -g) != "0" ] && die "Script must be run as root."
 
+println "Updating the system"
+sudo apt -y autoremove
+sudo apt -y install software-properties-common && sudo add-apt-repository ppa:ondrej/php -y
+sudo apt -y update && sudo apt -y upgrade
+ok "System is updated!!";
+
+
 println "Installing apache2"
-sudo apt -y update
 sudo apt-get -y install apache2
+sudo a2enmod ssl
 ok "Apache2 install completed!!";
 
 
 println "Installing PHP and it's dependable library"
-sudo apt-get -y install php$PHP_VERSION php$PHP_VERSION-cli php$PHP_VERSION-common php$PHP_VERSION-mysql php$PHP_VERSION-zip php$PHP_VERSION-gd php$PHP_VERSION-mbstring php$PHP_VERSION-curl php$PHP_VERSION-xml php$PHP_VERSION-bcmath php$PHP_VERSION-json php$PHP_VERSION-mysqli php$PHP_VERSION-xml
+sudo apt-get -y install php$PHP_VERSION
+sudo apt-get -y install php$PHP_VERSION-cli php$PHP_VERSION-common php$PHP_VERSION-mysql php$PHP_VERSION-zip php$PHP_VERSION-gd php$PHP_VERSION-mbstring php$PHP_VERSION-curl php$PHP_VERSION-xml php$PHP_VERSION-bcmath
 ok "PHP install completed!!";
 
 
@@ -70,7 +78,7 @@ ok "PHP ini update completed!!";
 println "Do you want to install PHP xdebug (y/n)?";
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then # this grammar (the #[] operator) means that the variable $answer where any Y or y in 1st position will be dropped if they exist.
-sudo apt-get install php$PHP_VERSION-dev
+sudo apt-get -y install php$PHP_VERSION-dev
 
 wget https://xdebug.org/files/$PHP_XDEBUG_VERSION_NAME.tgz
 sudo tar -xzf $PHP_XDEBUG_VERSION_NAME.tgz
@@ -96,8 +104,7 @@ ok "PHP ini update completed!!";
 println "Do you want to install MYSQL (y/n)?";
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-sudo apt -y install mysql-server
-sudo systemctl start mysql.service
+sudo apt-get -y install mysql-server
 
 println "Updating MYSQL configuration...";
 cat << EOF >> /etc/mysql/my.cnf
@@ -108,7 +115,7 @@ sql_mode="ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
 column-statistics=0
 EOF
 
-sed -i '/bind-address/c\bind-address   = 0.0.0.0' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i '/bind-address/c\bind-address = 0.0.0.0' /etc/mysql/mysql.conf.d/mysqld.cnf
 ok "MYSQL configuration completed!!"
 
 println "Updating MYSQL configuration...";
@@ -299,6 +306,9 @@ println "Do you want to install PHPMYADMIN (y/n)?";
 read answer
 
 if [ "$answer" != "${answer#[Yy]}" ] ;then
+# Install dependencies for PHPMYADMIN
+sudo apt-get -y install php$PHP_VERSION-json php$PHP_VERSION-mysqli
+
 # After downloading extract archive and move to the proper location
 wget https://files.phpmyadmin.net/phpMyAdmin/5.1.1/phpMyAdmin-5.1.1-all-languages.zip
 unzip phpMyAdmin-5.1.1-all-languages.zip
