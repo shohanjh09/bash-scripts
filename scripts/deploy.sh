@@ -109,8 +109,8 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
 # Install MYSQL 5.7
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
 sudo apt install ./mysql-apt-config_0.8.12-1_all.deb
-sudo apt -y update
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+sudo apt -y update
 sudo apt -y install -f mysql-client=5.7* mysql-community-server=5.7* mysql-server=5.7*
 
 println "Updating MYSQL configuration...";
@@ -263,12 +263,17 @@ read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
 cd /home
 echo "Installing Airgigs Web App dependencies"
-sudo apt -y install nodejs
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+echo "Installing Airgigs Web App dependencies"
+cd /home
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+
 source ~/.bashrc
-#nvm list-remote
-nvm install 16
-nvm use 16
+
+nvm install $NVM_VERSION
+nvm use $NVM_VERSION
 
 # sudo npm install -g cordova
 npm i -g @ionic/cli
