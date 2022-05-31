@@ -36,26 +36,26 @@ USER='ubuntu'
 NVM_VERSION='16'
 
 PHP_VERSION='8.1'
-PHP_INI_PATH="/etc/php/${PHP_VERSION}/cli/php.ini"
+PHP_INI_PATH="/etc/php/${PHP_VERSION}/apache2/php.ini"
 PHP_XDEBUG_VERSION_NAME='xdebug-3.1.4'
 
 # Sanity check
 [ $(id -g) != "0" ] && die "Script must be run as root."
 
 println "Updating the system"
-sudo apt -y autoremove
-sudo apt -y install software-properties-common && sudo add-apt-repository ppa:ondrej/php -y
 sudo apt -y update
 ok "System is updated!!";
 
 
 println "Installing apache2"
 sudo apt-get -y install apache2
-sudo a2enmod ssl
+sudo a2enmod ssl && a2enmod rewrite && a2enmod expires && a2enmod deflate && a2enmod headers
 ok "Apache2 install completed!!";
 
 
 println "Installing PHP and it's dependable library"
+sudo apt -y install software-properties-common && sudo add-apt-repository ppa:ondrej/php -y
+sudo apt -y update
 sudo apt-get -y install php$PHP_VERSION
 sudo apt-get -y install php$PHP_VERSION-cli php$PHP_VERSION-common php$PHP_VERSION-mysql php$PHP_VERSION-zip php$PHP_VERSION-gd php$PHP_VERSION-mbstring php$PHP_VERSION-curl php$PHP_VERSION-xml php$PHP_VERSION-bcmath
 ok "PHP install completed!!";
@@ -91,14 +91,15 @@ make install
 cat << EOF >> $PHP_INI_PATH
 [xdebug]
 zend_extension= xdebug.so
-xdebug.remote_port=9000
-xdebug.remote_autostart=1
-xdebug.remote_enable = on
-xdebug.remote_connect_back = on
+xdebug.client_port=9003
+xdebug.mode=debug
+xdebug.start_with_request=yes
+xdebug.mode=debug
+xdebug.discover_client_host = on
 xdebug.idekey = "AIRGIGS_LOCAL"
 EOF
-fi
 ok "PHP ini update completed!!";
+fi
 
 
 println "Do you want to install MYSQL (y/n)?";
@@ -115,7 +116,8 @@ sql_mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 column-statistics=0
 EOF
 
-sed -i '/bind-address/c\bind-address = 0.0.0.0' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i '/^bind-address/c\bind-address = 0.0.0.0' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i '/^mysqlx-bind-address/c\mysqlx-bind-address = 0.0.0.0' /etc/mysql/mysql.conf.d/mysqld.cnf
 ok "MYSQL configuration completed!!"
 
 println "Updating MYSQL configuration...";
@@ -246,8 +248,8 @@ EOF
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_DEV3_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_DEV3_NAME.conf
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_LEGACY_ADMIN_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_LEGACY_ADMIN_NAME.conf
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_LEARN_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_LEARN_NAME.conf
-fi
 ok "Apache configuration completed!!"
+fi
 
 
 println "Do you want to install Airgigs Web App (y/n)?";
@@ -299,13 +301,14 @@ stdout_logfile=/var/log/supervisor/airgigsapp-out.log
 EOF
 
 supervisorctl reread && supervisorctl update && supervisorctl restart all
-fi
 ok "Airgigs Web App setup completed!!"
+fi
 
 println "Do you want to install PHPMYADMIN (y/n)?";
 read answer
 
 if [ "$answer" != "${answer#[Yy]}" ] ;then
+sudo apt-get -y install zip unzip php-zip
 # After downloading extract archive and move to the proper location
 wget https://files.phpmyadmin.net/phpMyAdmin/5.1.1/phpMyAdmin-5.1.1-all-languages.zip
 unzip phpMyAdmin-5.1.1-all-languages.zip
@@ -316,8 +319,8 @@ mkdir /usr/share/phpmyadmin/tmp
 chown -R www-data:www-data /usr/share/phpmyadmin
 chmod 777 /usr/share/phpmyadmin/tmp
 
- 	# Adding configuration for adding it with apache
-cat << EOF >> /etc/apache/conf-available/phpmyadmin.conf
+# Adding configuration for adding it with apache
+cat << EOF >> /etc/apache2/conf-available/phpmyadmin.conf
 Alias /phpmyadmin /usr/share/phpmyadmin
 Alias /phpMyAdmin /usr/share/phpmyadmin
 
@@ -340,8 +343,8 @@ AddDefaultCharset UTF-8
 EOF
 
 sudo a2enconf phpmyadmin;
-fi
 ok "PHPADMIN setup completed!!"
+fi
 
 
 sudo service mysql restart
