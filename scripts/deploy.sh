@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Apache - new server block for deploying Airgigs applications
+# sed -i -e 's/\r$//' /vagrant/bash-scripts/scripts/deploy.sh
 # Functions
 ok() { echo -e '\e[32m'$1'\e[m'; } # Green
 die() { echo -e '\e[1;31m'$1'\e[m'; exit 1; }
@@ -105,7 +106,12 @@ fi
 println "Do you want to install MYSQL (y/n)?";
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-sudo apt-get -y install mysql-server
+# Install MYSQL 5.7
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
+sudo apt install ./mysql-apt-config_0.8.12-1_all.deb
+sudo apt -y update
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+sudo apt -y install -f mysql-client=5.7* mysql-community-server=5.7* mysql-server=5.7*
 
 println "Updating MYSQL configuration...";
 cat << EOF >> /etc/mysql/my.cnf
@@ -150,7 +156,7 @@ mysql -uroot -p${rootpasswd} -e "CREATE DATABASE IF NOT EXISTS ${lesson_dbname} 
 ok "Database successfully created!"
 
 echo "Importing database for dev3"
-#mysql -uroot -p${rootpasswd} $dev3_dbname < $DATABASE_BACKUP_DIR/$dev3_dbname.sql
+mysql -uroot -p${rootpasswd} $dev3_dbname < $DATABASE_BACKUP_DIR/$dev3_dbname.sql
 ok "Dev3 database import completed!!"
 
 echo "Importing database for dev3 test"
@@ -255,7 +261,7 @@ fi
 println "Do you want to install Airgigs Web App (y/n)?";
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-
+cd /home
 echo "Installing Airgigs Web App dependencies"
 sudo apt -y install nodejs
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
