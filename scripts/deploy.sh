@@ -45,7 +45,7 @@ PHP_XDEBUG_VERSION_NAME='xdebug-3.1.4'
 println "Updating the system"
 sudo apt -y autoremove
 sudo apt -y install software-properties-common && sudo add-apt-repository ppa:ondrej/php -y
-sudo apt -y update && sudo apt -y upgrade
+sudo apt -y update
 ok "System is updated!!";
 
 
@@ -109,7 +109,7 @@ sudo apt-get -y install mysql-server
 println "Updating MYSQL configuration...";
 cat << EOF >> /etc/mysql/my.cnf
 [mysqld]
-sql_mode="ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+sql_mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
 [mysqldump]
 column-statistics=0
@@ -129,7 +129,7 @@ echo "Enter the PASSWORD for database user! Note: password will be hidden when t
 read -s userpass
 
 echo "Creating new user..."
-mysql -uroot -p${rootpasswd} -e "CREATE USER ${username}@% IDENTIFIED BY '${userpass}';"
+mysql -uroot -p${rootpasswd} -e "CREATE USER '${username}'@'%' IDENTIFIED BY '${userpass}';"
 ok "User successfully created!"
 
 echo "Updating ${username} user password..."
@@ -306,9 +306,6 @@ println "Do you want to install PHPMYADMIN (y/n)?";
 read answer
 
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-# Install dependencies for PHPMYADMIN
-sudo apt-get -y install php$PHP_VERSION-json php$PHP_VERSION-mysqli
-
 # After downloading extract archive and move to the proper location
 wget https://files.phpmyadmin.net/phpMyAdmin/5.1.1/phpMyAdmin-5.1.1-all-languages.zip
 unzip phpMyAdmin-5.1.1-all-languages.zip
