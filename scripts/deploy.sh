@@ -24,8 +24,8 @@ LEGACY_DIR='/vagrant/legacy-dashboard/src'
 LESSON_DIR='/vagrant/micro-lessons'
 
 DATABASE_BACKUP_DIR='/vagrant/Setup/database'
-dev3_dbname='airgigs_staging'
-dev3_test_dbname='airgigs_staging_test'
+dev3_dbname='airgigs_prod'
+dev3_test_dbname='airgigs_prod_test'
 lesson_dbname='wp_learnstageair'
 
 SUPERVISOR_DIR='/etc/supervisor/conf.d'
@@ -160,11 +160,11 @@ mysql -uroot -p${rootpasswd} $dev3_dbname < $DATABASE_BACKUP_DIR/$dev3_dbname.sq
 ok "Dev3 database import completed!!"
 
 echo "Importing database for dev3 test"
-#mysql -uroot -p${rootpasswd} $dev3_test_dbname < $DATABASE_BACKUP_DIR/$dev3_test_dbname.sql
+mysql -uroot -p${rootpasswd} $dev3_test_dbname < $DATABASE_BACKUP_DIR/$dev3_test_dbname.sql
 ok "Dev3 test database import completed!!"
 
 echo "Importing database for lesson"
-#mysql -uroot -p${rootpasswd} $lesson_dbname < $DATABASE_BACKUP_DIR/$lesson_dbname.sql
+mysql -uroot -p${rootpasswd} $lesson_dbname < $DATABASE_BACKUP_DIR/$lesson_dbname.sql
 ok "Lesson database import completed!!"
 fi
 
@@ -282,6 +282,9 @@ mkdir $APP_DIR
 chmod 777 -R $APP_DIR
 cd $APP_DIR/
 
+rm -rf $APP_ORIGINAL_DIR/dist
+rm -rf $APP_ORIGINAL_DIR/node_modules
+
 ln -s $APP_ORIGINAL_DIR/* ./
 ln -s $APP_ORIGINAL_DIR/.env ./
 
@@ -290,17 +293,14 @@ npm install
 npm run build
 ionic cap sync
 
-rm -rf $APP_ORIGINAL_DIR/dist
-rm -rf $APP_ORIGINAL_DIR/node_modules
-
 cp -L -R ./node_modules $APP_ORIGINAL_DIR/
 cp -L -R ./dist $APP_ORIGINAL_DIR/
 
 echo "Installing supervisor for Airgigs Web App"
 sudo apt -y install supervisor
 
-# Create supervisord airigs-app.conf
-tee $SUPERVISOR_DIR/airigs-app.conf > /dev/null <<EOF
+# Create supervisord ionic.conf
+tee $SUPERVISOR_DIR/ionic.conf > /dev/null <<EOF
 [program:ionic]
 command=npm run serve -- --port 8100
 directory=$APP_DIR
