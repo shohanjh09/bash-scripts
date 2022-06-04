@@ -254,6 +254,15 @@ EOF
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_DEV3_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_DEV3_NAME.conf
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_LEGACY_ADMIN_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_LEGACY_ADMIN_NAME.conf
 ln -s $APACHE_AVAILABLE_VHOSTS/$SITE_LEARN_NAME.conf $APACHE_ENABLED_VHOSTS/$SITE_LEARN_NAME.conf
+
+# Creating SESSION directory
+cd /var/www
+sudo mkdir airgigs
+cd airgigs
+sudo mkdir airgigs-sessions
+cd ..
+sudo chmod -R 777 airgigs
+
 ok "Apache configuration completed!!"
 fi
 
