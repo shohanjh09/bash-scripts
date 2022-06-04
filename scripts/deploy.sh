@@ -370,4 +370,4 @@ fi
 sudo service mysql restart
 sudo systemctl restart apache2
 
-ok "Airgigs Setup completed !!"
+ok "Airgigs Setup is completed !!"

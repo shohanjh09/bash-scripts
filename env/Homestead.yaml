@@ -12,8 +12,6 @@ keys:
 folders:
     - map: D:/Airgigs/VagrantApi/projects/Airgigs-APi
       to: /home/vagrant/Airgigs-APi
-    - map: D:/Airgigs/VagrantApi/projects/Laravel-Details
-      to: /home/vagrant/Laravel-Details
 
 sites:
     - map: api.local.com
@@ -23,15 +21,15 @@ databases:
     - homestead
 
 features:
-    - mysql: true
+    - mysql: false
     - mariadb: false
     - postgresql: false
     - ohmyzsh: false
     - webdriver: false
 
-services:
-    - enabled:
-          - "mysql"
+#services:
+#    - enabled:
+#          - "mysql"
 #    - disabled:
 #        - "postgresql@11-main"
 
