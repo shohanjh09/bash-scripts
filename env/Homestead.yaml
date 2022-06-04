@@ -1,0 +1,50 @@
+---
+ip: "192.168.56.12"
+memory: 2048
+cpus: 2
+provider: virtualbox
+
+authorize: D:/Airgigs/VagrantApi/ssh-keys/shohan_id_rsa.pub
+
+keys:
+    - D:/Airgigs/VagrantApi/ssh-keys/shohan_id_rsa
+
+folders:
+    - map: D:/Airgigs/VagrantApi/projects/Airgigs-APi
+      to: /home/vagrant/Airgigs-APi
+    - map: D:/Airgigs/VagrantApi/projects/Laravel-Details
+      to: /home/vagrant/Laravel-Details
+
+sites:
+    - map: api.local.com
+      to: /home/vagrant/Airgigs-APi/public
+
+databases:
+    - homestead
+
+features:
+    - mysql: true
+    - mariadb: false
+    - postgresql: false
+    - ohmyzsh: false
+    - webdriver: false
+
+services:
+    - enabled:
+          - "mysql"
+#    - disabled:
+#        - "postgresql@11-main"
+
+#ports:
+#    - send: 33060 # MySQL/MariaDB
+#      to: 3306
+#    - send: 4040
+#      to: 4040
+#    - send: 54320 # PostgreSQL
+#      to: 5432
+#    - send: 8025 # Mailhog
+#      to: 8025
+#    - send: 9600
+#      to: 9600
+#    - send: 27017
+#      to: 27017
