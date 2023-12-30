@@ -109,12 +109,9 @@ fi
 println "Do you want to install MYSQL (y/n)?";
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-# Install MYSQL 5.7
-#wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
-#sudo apt install ./mysql-apt-config_0.8.12-1_all.deb
-#sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
-#sudo apt-cache policy mysql-server
-#sudo apt -y install -f mysql-client=5.7* mysql-community-server=5.7* mysql-server=5.7*
+sudo apt install mysql-server
+sudo systemctl start mysql
+sudo systemctl enable mysql
 
 println "Updating MYSQL configuration...";
 cat << EOF >> /etc/mysql/my.cnf
@@ -332,40 +329,11 @@ read answer
 
 if [ "$answer" != "${answer#[Yy]}" ] ;then
 sudo apt-get -y install zip unzip php-zip
-# After downloading extract archive and move to the proper location
-wget https://files.phpmyadmin.net/phpMyAdmin/5.1.1/phpMyAdmin-5.1.1-all-languages.zip
-unzip phpMyAdmin-5.1.1-all-languages.zip
-mv phpMyAdmin-5.1.1-all-languages /usr/share/phpmyadmin
 
-#create tmp directory and set the proper permissions.
-mkdir /usr/share/phpmyadmin/tmp
-chown -R www-data:www-data /usr/share/phpmyadmin
-chmod 777 /usr/share/phpmyadmin/tmp
+sudo apt install phpmyadmin
+sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
+sudo a2enconf phpmyadmin
 
-# Adding configuration for adding it with apache
-cat << EOF >> /etc/apache2/conf-available/phpmyadmin.conf
-Alias /phpmyadmin /usr/share/phpmyadmin
-Alias /phpMyAdmin /usr/share/phpmyadmin
-
-<Directory /usr/share/phpmyadmin/>
-AddDefaultCharset UTF-8
-<IfModule mod_authz_core.c>
-  <RequireAny>
-  Require all granted
-  </RequireAny>
-</IfModule>
-</Directory>
-
-<Directory /usr/share/phpmyadmin/setup/>
-<IfModule mod_authz_core.c>
-  <RequireAny>
-  Require all granted
-  </RequireAny>
-</IfModule>
-</Directory>
-EOF
-
-sudo a2enconf phpmyadmin;
 ok "PHPADMIN setup completed!!"
 fi
 
