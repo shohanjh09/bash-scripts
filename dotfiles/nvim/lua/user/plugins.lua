@@ -191,11 +191,19 @@ use({
 
 -- Display indentation lines.
 use({
-  'lukas-reineke/indent-blankline.nvim',
-  config = function()
-    require('user/plugins/indent-blankline')
-  end,
-})
+    'lukas-reineke/indent-blankline.nvim',
+      main = 'ibl',
+      opts = {
+        scope = {
+          show_start = false,
+        },
+        exclude = {
+          filetypes = {
+            'dashboard',
+          },
+        },
+      }
+  })
 
 -- Add a dashboard.
 use({
