@@ -255,7 +255,16 @@ use({
     require('nvim-treesitter.install').update({ with_sync = true })
   end,
   requires = {
-    'JoosepAlviste/nvim-ts-context-commentstring',
+    {
+      'JoosepAlviste/nvim-ts-context-commentstring',
+      opts = {
+        custom_calculation = function (node, language_tree)
+          if vim.bo.filetype == 'blade' and language_tree._lang ~= 'javascript' then
+            return '{{-- %s --}}'
+          end
+        end,
+      },
+    },
     'nvim-treesitter/nvim-treesitter-textobjects',
   },
   config = function()
